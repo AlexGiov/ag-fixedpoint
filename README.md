@@ -60,10 +60,10 @@ $CMAKE_GENERATOR = "Ninja"            # Faster, requires Ninja installed
 
 ```
 unit_test_template/
-├── include/mylib/          # Public headers (installable)
-│   └── math_utils.h
+├── include/ag_fixedpoint/          # Public headers (installable)
+│   └── ag_fixedpoint.h
 ├── src/                    # Library sources (installable)
-│   ├── math_utils.c
+│   ├── ag_fixedpoint.c
 │   └── private/            # Private sources (not installable)
 ├── test/
 │   ├── unit/               # Unit test files
@@ -114,9 +114,9 @@ cd my-new-library
 ```
 
 **What the script does (simplified):**
-1. ✅ Changes `project(mylib)` → `project(sensor_driver)` in CMakeLists.txt
-2. ✅ Renames `include/mylib/` → `include/sensor_driver/`
-3. ✅ Renames source files: `math_utils.*` → `sensor_driver.*`
+1. ✅ Changes `project(ag_fixedpoint)` → `project(sensor_driver)` in CMakeLists.txt
+2. ✅ Renames `include/ag_fixedpoint/` → `include/sensor_driver/`
+3. ✅ Renames source files: `ag_fixedpoint.*` → `sensor_driver.*`
 4. ✅ Updates `#include` statements in C files
 5. ✅ Updates README.md references
 
@@ -139,7 +139,7 @@ If you prefer to do it manually:
 
 ```cmake
 # Change only this line:
-project(mylib VERSION 1.0.0 LANGUAGES C)  
+project(ag_fixedpoint VERSION 1.0.0 LANGUAGES C)  
 # to:
 project(your_library_name VERSION 1.0.0 LANGUAGES C)
 
@@ -150,11 +150,11 @@ project(your_library_name VERSION 1.0.0 LANGUAGES C)
 
 ```powershell
 # Rename include directory
-mv include/mylib include/your_library_name
+mv include/ag_fixedpoint include/your_library_name
 
 # Rename source files (if single-module library)
-mv src/math_utils.c src/your_library_name.c
-mv include/your_library_name/math_utils.h include/your_library_name/your_library_name.h
+mv src/ag_fixedpoint.c src/your_library_name.c
+mv include/your_library_name/ag_fixedpoint.h include/your_library_name/your_library_name.h
 mv test/unit/test_math_utils.c test/unit/test_your_library_name.c
 ```
 
@@ -170,7 +170,7 @@ mv test/unit/test_math_utils.c test/unit/test_your_library_name.c
 
 ### 4. Update README.md
 
-Replace all references to `mylib` with `your_library_name`.
+Replace all references to `ag_fixedpoint` with `your_library_name`.
 
 </details>
 
@@ -200,7 +200,7 @@ The template leverages CMake variables for maximum flexibility:
 
 ```cmake
 # In CMakeLists.txt - Single source of truth:
-project(mylib VERSION 1.0.0 LANGUAGES C)
+project(ag_fixedpoint VERSION 1.0.0 LANGUAGES C)
 
 # Auto-derived variable:
 string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
@@ -215,7 +215,7 @@ install(DIRECTORY include/${PROJECT_NAME}/ ...)
 install(FILES ... DESTINATION cmake/${PROJECT_NAME})
 ```
 
-This means changing `project(mylib)` to `project(your_lib)` automatically updates:
+This means changing `project(ag_fixedpoint)` to `project(your_lib)` automatically updates:
 - Library target name
 - All install paths
 - Export configurations  
@@ -232,7 +232,7 @@ git clone <repo-url> my-library-tests
 cd my-library-tests
 
 # Update library name
-# Edit CMakeLists.txt: project(mylib) -> project(your_lib_name)
+# Edit CMakeLists.txt: project(ag_fixedpoint) -> project(your_lib_name)
 ```
 
 ### 2. Add Your Library Sources
@@ -311,20 +311,20 @@ cmake --build build --target install
 
 # Installed structure:
 # install/
-# ├── include/mylib/          # Headers
-# └── src/mylib/              # Source files
+# ├── include/ag_fixedpoint/          # Headers
+# └── src/ag_fixedpoint/              # Source files
 ```
 
 ### Use in Embedded Project
 
 ```cmake
 # In your embedded project CMakeLists.txt
-add_library(mylib
-    ${VENDOR_DIR}/mylib/src/math_utils.c
+add_library(ag_fixedpoint
+    ${VENDOR_DIR}/ag_fixedpoint/src/ag_fixedpoint.c
 )
 
-target_include_directories(mylib PUBLIC
-    ${VENDOR_DIR}/mylib/include
+target_include_directories(ag_fixedpoint PUBLIC
+    ${VENDOR_DIR}/ag_fixedpoint/include
 )
 ```
 
@@ -336,23 +336,23 @@ git tag -a v1.0.0 -m "Release version 1.0.0"
 git push origin v1.0.0
 
 # In your embedded project, use specific version
-git clone --branch v1.0.0 <repo-url> vendor/mylib
+git clone --branch v1.0.0 <repo-url> vendor/ag_fixedpoint
 ```
 
-## 📝 Example: math_utils Library
+## 📝 Example: ag_fixedpoint Library
 
-The template includes a simple `math_utils` library as an example:
+The template includes a simple `ag_fixedpoint` library as an example:
 
 ### Library Code
 
 ```c
-// include/mylib/math_utils.h
+// include/ag_fixedpoint/ag_fixedpoint.h
 int add(int a, int b);
 int subtract(int a, int b);
 int multiply(int a, int b);
 int divide(int a, int b);
 
-// src/math_utils.c
+// src/ag_fixedpoint.c
 int add(int a, int b) { return a + b; }
 int divide(int a, int b) {
     if (b == 0) return 0;  // Safety check
@@ -385,7 +385,7 @@ static void test_divide_by_zero(void **state) {
 
 1. Set breakpoint in test file or source
 2. Press `F5`
-3. Select "Debug Test: math_utils"
+3. Select "Debug Test: ag_fixedpoint"
 4. Step through code with GDB
 
 ### Debug Configuration
@@ -463,7 +463,7 @@ jobs:
           ctest --test-dir build --output-on-failure
       - name: Generate Coverage
         run: |
-          gcov build/CMakeFiles/mylib.dir/src/*.c.gcno
+          gcov build/CMakeFiles/ag_fixedpoint.dir/src/*.c.gcno
 ```
 
 ## 📖 Additional Documentation
@@ -476,7 +476,7 @@ jobs:
 
 When using this as a template for your projects:
 
-1. Replace `mylib` with your library name
+1. Replace `ag_fixedpoint` with your library name
 2. Update version in `CMakeLists.txt`
 3. Add your source files
 4. Write comprehensive tests

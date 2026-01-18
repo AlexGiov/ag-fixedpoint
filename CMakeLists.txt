@@ -17,7 +17,7 @@ cmake_minimum_required(VERSION 3.10)
 # All CMake targets, exports, and install paths will automatically use the
 # new project name via ${PROJECT_NAME} variable.
 
-project(mylib
+project(ag_fixedpoint 
     VERSION 1.0.0
     DESCRIPTION "Example library with unit testing template"
     LANGUAGES C
@@ -70,13 +70,13 @@ set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 # For multi-module libraries, list all source files explicitly
 # Example shown below uses math_utils.c - rename to match your library
 set(${PROJECT_NAME_UPPER}_SOURCES
-    src/math_utils.c
+    src/ag_fixedpoint.c
 )
 
 # Header files (for IDE support)
 # Example shown below uses math_utils.h - rename to match your library
 set(${PROJECT_NAME_UPPER}_HEADERS
-    include/${PROJECT_NAME}/math_utils.h
+    include/${PROJECT_NAME}/ag_fixedpoint.h
 )
 
 # Create library

@@ -1,9 +1,9 @@
 /**
- * @file math_utils.c
+ * @file ag_fixedpoint.c
  * @brief Implementation of simple math utility functions
  */
 
-#include "mylib/math_utils.h"
+#include "ag_fixedpoint/ag_fixedpoint.h"
 
 int add(int a, int b) { return a + b; }
 

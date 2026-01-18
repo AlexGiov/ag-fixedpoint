@@ -1,12 +1,12 @@
 /**
- * @file math_utils.h
+ * @file ag_fixedpoint.h
  * @brief Simple math utility functions for testing
  *
  * This is a simple example library to demonstrate the unit testing template.
  */
 
-#ifndef MYLIB_MATH_UTILS_H
-#define MYLIB_MATH_UTILS_H
+#ifndef MYLIB_AG_FIXEDPOINT_H
+#define MYLIB_AG_FIXEDPOINT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,4 +52,4 @@ int divide(int a, int b);
 }
 #endif
 
-#endif /* MYLIB_MATH_UTILS_H */
+#endif /* MYLIB_AG_FIXEDPOINT_H */

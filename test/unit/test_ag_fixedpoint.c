@@ -1,5 +1,5 @@
 /**
- * @file test_math_utils.c
+ * @file test_ag_fixedpoint.c
  * @brief Unit tests for math_utils library
  *
  * This demonstrates basic unit testing with cmocka.
@@ -11,7 +11,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "mylib/math_utils.h"
+#include "ag_fixedpoint/ag_fixedpoint.h"
 
 
 /* Test fixtures */

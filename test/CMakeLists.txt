@@ -39,7 +39,7 @@ target_compile_options(cmocka PRIVATE
 
 # Auto-detect test files and create executables
 # For now, using explicit declaration (example: math_utils module)
-set(TEST_MODULE_NAME "math_utils")  # TODO: Update when renaming library
+set(TEST_MODULE_NAME "ag_fixedpoint")  # TODO: Update when renaming library
 
 add_executable(test_${TEST_MODULE_NAME}
     unit/test_${TEST_MODULE_NAME}.c
