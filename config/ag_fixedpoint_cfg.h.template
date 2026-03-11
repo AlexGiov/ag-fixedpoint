@@ -1,35 +1,40 @@
 /**
- * @file ag_fixedpoint_cfg.h.template
- * @brief Configuration template for the AG Fixed-Point Arithmetic Library
+ * @file ag_fixedpoint_cfg.h
+ * @brief Configuration options for the AG Fixed-Point Arithmetic Library
  *
- * IMPORTANT: This is a TEMPLATE file, not the actual configuration!
- *
- * To use this library in your application:
- * 1. Copy this file to your project's configuration directory (e.g., cfg/)
- * 2. Rename it to ag_fixedpoint_cfg.h (remove .template)
- * 3. Customize the settings below for your application
- * 4. Add your cfg/ directory to the include path in CMake
- *
- * Example (in your application's CMakeLists.txt):
- *   target_include_directories(my_app PRIVATE ${CMAKE_SOURCE_DIR}/cfg)
+ * This file contains compile-time configuration options that control
+ * the features and behavior of the fixed-point library.
  *
  * @author Alex Giovannini
- * @date 2026-03-11
+ * @date 2026-01-18
  * @version 1.0.0
  */
 
 #ifndef AG_FIXEDPOINT_CFG_H
 #define AG_FIXEDPOINT_CFG_H
 
+/*============================================================================*/
+/* COMPILER COMPATIBILITY                                                     */
+/*============================================================================*/
+
+/**
+ * @brief Provide _Static_assert fallback for pre-C11 compilers
+ *
+ * XC32 v1.20 (GCC 4.5.x) does not support C11 _Static_assert.
+ * This macro makes it a no-op on such compilers while preserving
+ * the compile-time check on C11+ toolchains.
+ */
+#if !defined(__STDC_VERSION__) || (__STDC_VERSION__ < 201112L)
+#ifndef _Static_assert
+#define _Static_assert(expr, msg) /* no-op on pre-C11 compilers */
+#endif
+#endif
+
 /**
  * @defgroup AG_FIXEDPOINT_CONFIG Configuration Options
  * @brief Compile-time configuration macros
  * @{
  */
-
-/*============================================================================*/
-/* FLOATING-POINT SUPPORT                                                    */
-/*============================================================================*/
 
 /**
  * @def AG_FIXEDPOINT_ENABLE_FLOAT
@@ -43,14 +48,39 @@
  *          a Floating-Point Unit (FPU). Use only for debugging or when
  *          interfacing with floating-point code.
  *
- * Recommended values:
- * - 0: Production embedded systems without FPU (default)
- * - 1: Desktop applications, testing, or systems with FPU
- *
  * @note Default: 0 (disabled) for embedded systems optimization
  */
 #ifndef AG_FIXEDPOINT_ENABLE_FLOAT
-#define AG_FIXEDPOINT_ENABLE_FLOAT 0
+#define AG_FIXEDPOINT_ENABLE_FLOAT 1
+#endif
+
+/**
+ * @def AG_FIXEDPOINT_ENABLE_SATURATION
+ * @brief Enable saturation arithmetic variants
+ *
+ * When set to 1, enables saturating versions of arithmetic operations
+ * that clamp results to the valid range instead of wrapping on overflow.
+ *
+ * @note Default: 0 (disabled) - standard wrapping behavior
+ * @note Saturation adds overhead - enable only if needed
+ */
+#ifndef AG_FIXEDPOINT_ENABLE_SATURATION
+#define AG_FIXEDPOINT_ENABLE_SATURATION 0
+#endif
+
+/**
+ * @def AG_FIXEDPOINT_ROUNDING_MODE
+ * @brief Default rounding mode for fixed-point operations
+ *
+ * Possible values:
+ * - 0: Truncate (fastest, default)
+ * - 1: Round half-up (add 0.5 before truncate)
+ * - 2: Round half-even (banker's rounding)
+ *
+ * @note Default: 0 (truncate) for maximum performance
+ */
+#ifndef AG_FIXEDPOINT_ROUNDING_MODE
+#define AG_FIXEDPOINT_ROUNDING_MODE 0
 #endif
 
 /**
@@ -87,43 +117,6 @@
 #ifndef AG_FIXEDPOINT_FLOAT_TYPE
 #define AG_FIXEDPOINT_FLOAT_TYPE 32
 #endif
-
-/*============================================================================*/
-/* ARITHMETIC FEATURES (Future Features - Not Yet Implemented)               */
-/*============================================================================*/
-
-/**
- * @def AG_FIXEDPOINT_ENABLE_SATURATION
- * @brief Enable saturation arithmetic variants
- *
- * When set to 1, enables saturating versions of arithmetic operations
- * that clamp results to the valid range instead of wrapping on overflow.
- *
- * @note Default: 0 (disabled) - standard wrapping behavior
- * @note Saturation adds overhead - enable only if needed
- * @note This feature is planned for future releases
- */
-#ifndef AG_FIXEDPOINT_ENABLE_SATURATION
-#define AG_FIXEDPOINT_ENABLE_SATURATION 0
-#endif
-
-/**
- * @def AG_FIXEDPOINT_ROUNDING_MODE
- * @brief Default rounding mode for fixed-point operations
- *
- * Possible values:
- * - 0: Truncate (fastest, default)
- * - 1: Round half-up (add 0.5 before truncate)
- * - 2: Round half-even (banker's rounding)
- *
- * @note Default: 0 (truncate) for maximum performance
- * @note This feature is planned for future releases
- */
-#ifndef AG_FIXEDPOINT_ROUNDING_MODE
-#define AG_FIXEDPOINT_ROUNDING_MODE 0
-#endif
-
-/*============================================================================*/
 
 /** @} */ /* end of AG_FIXEDPOINT_CONFIG */
 
