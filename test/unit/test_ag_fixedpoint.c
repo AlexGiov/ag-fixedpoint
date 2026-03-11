@@ -388,8 +388,239 @@ static void test_compile_time_constants(void** state) {
 	assert_int_equal(ag_fixedpoint_q3_28_to_int(const_val3), 3);
 }
 
+/*============================================================================*//* Q*.0 INTEGER TYPE TESTS (UQ16.0,
+																				   Q15.0, UQ8.0, Q7.0, UQ32.0, Q31.0) */
 /*============================================================================*/
-/* CONFIGURATION VALIDATION                                                  */
+
+/**
+ * @brief Test UQ16.0 (uint16_t) conversions
+ */
+static void test_uq16_0_conversion(void** state) {
+	(void)state;
+
+	/* Integer conversions */
+	ag_fixedpoint_uq16_0_t zero = ag_fixedpoint_uq16_0_from_int(0);
+	assert_int_equal(ag_fixedpoint_uq16_0_to_int(zero), 0);
+
+	ag_fixedpoint_uq16_0_t val1 = ag_fixedpoint_uq16_0_from_int(1000);
+	assert_int_equal(ag_fixedpoint_uq16_0_to_int(val1), 1000);
+
+	ag_fixedpoint_uq16_0_t max_val = ag_fixedpoint_uq16_0_from_int(65535);
+	assert_int_equal(ag_fixedpoint_uq16_0_to_int(max_val), 65535);
+
+	/* Compile-time constants */
+	ag_fixedpoint_uq16_0_t const_val = AG_FIXEDPOINT_UQ16_0_CONST(12345, 0);
+	assert_int_equal(const_val, 12345);
+
+#if AG_FIXEDPOINT_ENABLE_FLOAT
+	/* Float conversions */
+	ag_fixedpoint_float_t f1 = ag_fixedpoint_uq16_0_to_float(val1);
+	assert_true(fabs(f1 - 1000.0) < FLOAT_TOLERANCE);
+
+	ag_fixedpoint_uq16_0_t from_f = ag_fixedpoint_uq16_0_from_float(1234.5);
+	assert_int_equal(from_f, 1235); /* rounded */
+#endif
+}
+
+/**
+ * @brief Test Q15.0 (int16_t) conversions
+ */
+static void test_q15_0_conversion(void** state) {
+	(void)state;
+
+	/* Integer conversions */
+	ag_fixedpoint_q15_0_t zero = ag_fixedpoint_q15_0_from_int(0);
+	assert_int_equal(ag_fixedpoint_q15_0_to_int(zero), 0);
+
+	ag_fixedpoint_q15_0_t pos_val = ag_fixedpoint_q15_0_from_int(1000);
+	assert_int_equal(ag_fixedpoint_q15_0_to_int(pos_val), 1000);
+
+	ag_fixedpoint_q15_0_t neg_val = ag_fixedpoint_q15_0_from_int(-1000);
+	assert_int_equal(ag_fixedpoint_q15_0_to_int(neg_val), -1000);
+
+	ag_fixedpoint_q15_0_t max_val = ag_fixedpoint_q15_0_from_int(32767);
+	assert_int_equal(ag_fixedpoint_q15_0_to_int(max_val), 32767);
+
+	ag_fixedpoint_q15_0_t min_val = ag_fixedpoint_q15_0_from_int(-32768);
+	assert_int_equal(ag_fixedpoint_q15_0_to_int(min_val), -32768);
+
+	/* Compile-time constants */
+	ag_fixedpoint_q15_0_t const_pos = AG_FIXEDPOINT_Q15_0_CONST(100, 0);
+	assert_int_equal(const_pos, 100);
+
+	ag_fixedpoint_q15_0_t const_neg = AG_FIXEDPOINT_Q15_0_CONST(-100, 0);
+	assert_int_equal(const_neg, -100);
+
+#if AG_FIXEDPOINT_ENABLE_FLOAT
+	/* Float conversions */
+	ag_fixedpoint_float_t f_pos = ag_fixedpoint_q15_0_to_float(pos_val);
+	assert_true(fabs(f_pos - 1000.0) < FLOAT_TOLERANCE);
+
+	ag_fixedpoint_float_t f_neg = ag_fixedpoint_q15_0_to_float(neg_val);
+	assert_true(fabs(f_neg - (-1000.0)) < FLOAT_TOLERANCE);
+
+	/* Rounding tests */
+	ag_fixedpoint_q15_0_t from_f_pos = ag_fixedpoint_q15_0_from_float(123.5);
+	assert_int_equal(from_f_pos, 124);
+
+	ag_fixedpoint_q15_0_t from_f_neg = ag_fixedpoint_q15_0_from_float(-123.5);
+	assert_int_equal(from_f_neg, -124); /* round-to-nearest: -123.5 + (-0.5) = -124 */
+#endif
+}
+
+/**
+ * @brief Test UQ8.0 (uint8_t) conversions
+ */
+static void test_uq8_0_conversion(void** state) {
+	(void)state;
+
+	/* Integer conversions */
+	ag_fixedpoint_uq8_0_t zero = ag_fixedpoint_uq8_0_from_int(0);
+	assert_int_equal(ag_fixedpoint_uq8_0_to_int(zero), 0);
+
+	ag_fixedpoint_uq8_0_t val1 = ag_fixedpoint_uq8_0_from_int(128);
+	assert_int_equal(ag_fixedpoint_uq8_0_to_int(val1), 128);
+
+	ag_fixedpoint_uq8_0_t max_val = ag_fixedpoint_uq8_0_from_int(255);
+	assert_int_equal(ag_fixedpoint_uq8_0_to_int(max_val), 255);
+
+	/* Compile-time constants */
+	ag_fixedpoint_uq8_0_t const_val = AG_FIXEDPOINT_UQ8_0_CONST(200, 0);
+	assert_int_equal(const_val, 200);
+
+#if AG_FIXEDPOINT_ENABLE_FLOAT
+	/* Float conversions */
+	ag_fixedpoint_float_t f1 = ag_fixedpoint_uq8_0_to_float(val1);
+	assert_true(fabs(f1 - 128.0) < FLOAT_TOLERANCE);
+
+	ag_fixedpoint_uq8_0_t from_f = ag_fixedpoint_uq8_0_from_float(99.6);
+	assert_int_equal(from_f, 100); /* rounded */
+#endif
+}
+
+/**
+ * @brief Test Q7.0 (int8_t) conversions
+ */
+static void test_q7_0_conversion(void** state) {
+	(void)state;
+
+	/* Integer conversions */
+	ag_fixedpoint_q7_0_t zero = ag_fixedpoint_q7_0_from_int(0);
+	assert_int_equal(ag_fixedpoint_q7_0_to_int(zero), 0);
+
+	ag_fixedpoint_q7_0_t pos_val = ag_fixedpoint_q7_0_from_int(50);
+	assert_int_equal(ag_fixedpoint_q7_0_to_int(pos_val), 50);
+
+	ag_fixedpoint_q7_0_t neg_val = ag_fixedpoint_q7_0_from_int(-50);
+	assert_int_equal(ag_fixedpoint_q7_0_to_int(neg_val), -50);
+
+	ag_fixedpoint_q7_0_t max_val = ag_fixedpoint_q7_0_from_int(127);
+	assert_int_equal(ag_fixedpoint_q7_0_to_int(max_val), 127);
+
+	ag_fixedpoint_q7_0_t min_val = ag_fixedpoint_q7_0_from_int(-128);
+	assert_int_equal(ag_fixedpoint_q7_0_to_int(min_val), -128);
+
+	/* Compile-time constants */
+	ag_fixedpoint_q7_0_t const_pos = AG_FIXEDPOINT_Q7_0_CONST(25, 0);
+	assert_int_equal(const_pos, 25);
+
+	ag_fixedpoint_q7_0_t const_neg = AG_FIXEDPOINT_Q7_0_CONST(-25, 0);
+	assert_int_equal(const_neg, -25);
+
+#if AG_FIXEDPOINT_ENABLE_FLOAT
+	/* Float conversions */
+	ag_fixedpoint_float_t f_pos = ag_fixedpoint_q7_0_to_float(pos_val);
+	assert_true(fabs(f_pos - 50.0) < FLOAT_TOLERANCE);
+
+	ag_fixedpoint_float_t f_neg = ag_fixedpoint_q7_0_to_float(neg_val);
+	assert_true(fabs(f_neg - (-50.0)) < FLOAT_TOLERANCE);
+
+	/* Rounding tests */
+	ag_fixedpoint_q7_0_t from_f_pos = ag_fixedpoint_q7_0_from_float(25.6);
+	assert_int_equal(from_f_pos, 26);
+
+	ag_fixedpoint_q7_0_t from_f_neg = ag_fixedpoint_q7_0_from_float(-25.6);
+	assert_int_equal(from_f_neg, -26); /* round-to-nearest: -25.6 + (-0.5) = -26.1 -> -26 */
+#endif
+}
+
+/**
+ * @brief Test UQ32.0 (uint32_t) conversions
+ */
+static void test_uq32_0_conversion(void** state) {
+	(void)state;
+
+	/* Integer conversions */
+	ag_fixedpoint_uq32_0_t zero = ag_fixedpoint_uq32_0_from_int(0);
+	assert_int_equal(ag_fixedpoint_uq32_0_to_int(zero), 0);
+
+	ag_fixedpoint_uq32_0_t val1 = ag_fixedpoint_uq32_0_from_int(1000000);
+	assert_int_equal(ag_fixedpoint_uq32_0_to_int(val1), 1000000);
+
+	ag_fixedpoint_uq32_0_t large_val = ag_fixedpoint_uq32_0_from_int(2147483647);
+	assert_int_equal(ag_fixedpoint_uq32_0_to_int(large_val), 2147483647);
+
+	/* Compile-time constants */
+	ag_fixedpoint_uq32_0_t const_val = AG_FIXEDPOINT_UQ32_0_CONST(123456789, 0);
+	assert_int_equal(const_val, 123456789);
+
+#if AG_FIXEDPOINT_ENABLE_FLOAT
+	/* Float conversions */
+	ag_fixedpoint_float_t f1 = ag_fixedpoint_uq32_0_to_float(val1);
+	assert_true(fabs(f1 - 1000000.0) < FLOAT_TOLERANCE);
+
+	ag_fixedpoint_uq32_0_t from_f = ag_fixedpoint_uq32_0_from_float(999999.7);
+	assert_int_equal(from_f, 1000000); /* rounded */
+#endif
+}
+
+/**
+ * @brief Test Q31.0 (int32_t) conversions
+ */
+static void test_q31_0_conversion(void** state) {
+	(void)state;
+
+	/* Integer conversions */
+	ag_fixedpoint_q31_0_t zero = ag_fixedpoint_q31_0_from_int(0);
+	assert_int_equal(ag_fixedpoint_q31_0_to_int(zero), 0);
+
+	ag_fixedpoint_q31_0_t pos_val = ag_fixedpoint_q31_0_from_int(1000000);
+	assert_int_equal(ag_fixedpoint_q31_0_to_int(pos_val), 1000000);
+
+	ag_fixedpoint_q31_0_t neg_val = ag_fixedpoint_q31_0_from_int(-1000000);
+	assert_int_equal(ag_fixedpoint_q31_0_to_int(neg_val), -1000000);
+
+	ag_fixedpoint_q31_0_t max_val = ag_fixedpoint_q31_0_from_int(2147483647);
+	assert_int_equal(ag_fixedpoint_q31_0_to_int(max_val), 2147483647);
+
+	ag_fixedpoint_q31_0_t min_val = ag_fixedpoint_q31_0_from_int(-2147483647 - 1);
+	assert_int_equal(ag_fixedpoint_q31_0_to_int(min_val), -2147483647 - 1);
+
+	/* Compile-time constants */
+	ag_fixedpoint_q31_0_t const_pos = AG_FIXEDPOINT_Q31_0_CONST(100000, 0);
+	assert_int_equal(const_pos, 100000);
+
+	ag_fixedpoint_q31_0_t const_neg = AG_FIXEDPOINT_Q31_0_CONST(-100000, 0);
+	assert_int_equal(const_neg, -100000);
+
+#if AG_FIXEDPOINT_ENABLE_FLOAT
+	/* Float conversions */
+	ag_fixedpoint_float_t f_pos = ag_fixedpoint_q31_0_to_float(pos_val);
+	assert_true(fabs(f_pos - 1000000.0) < FLOAT_TOLERANCE);
+
+	ag_fixedpoint_float_t f_neg = ag_fixedpoint_q31_0_to_float(neg_val);
+	assert_true(fabs(f_neg - (-1000000.0)) < FLOAT_TOLERANCE);
+
+	/* Rounding tests */
+	ag_fixedpoint_q31_0_t from_f_pos = ag_fixedpoint_q31_0_from_float(123456.7);
+	assert_int_equal(from_f_pos, 123457);
+
+	ag_fixedpoint_q31_0_t from_f_neg = ag_fixedpoint_q31_0_from_float(-123456.7);
+	assert_int_equal(from_f_neg, -123457); /* round-to-nearest: -123456.7 + (-0.5) = -123457.2 -> -123457 */
+#endif
+}
+
+/*============================================================================*//* CONFIGURATION VALIDATION */
 /*============================================================================*/
 
 /**
@@ -446,6 +677,14 @@ int main(void) {
 #if AG_FIXEDPOINT_ENABLE_FLOAT
 		cmocka_unit_test(test_q3_28_float_conversion),
 #endif
+
+		/* Q*.0 integer type tests */
+		cmocka_unit_test(test_uq16_0_conversion),
+		cmocka_unit_test(test_q15_0_conversion),
+		cmocka_unit_test(test_uq8_0_conversion),
+		cmocka_unit_test(test_q7_0_conversion),
+		cmocka_unit_test(test_uq32_0_conversion),
+		cmocka_unit_test(test_q31_0_conversion),
 
 		/* Boundary tests */
 		cmocka_unit_test(test_unsigned_boundaries),

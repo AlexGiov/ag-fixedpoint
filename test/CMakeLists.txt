@@ -58,6 +58,13 @@ target_include_directories(test_${TEST_MODULE_NAME}
         ${CMAKE_SOURCE_DIR}/test/mocks
 )
 
+# Add configuration directory (same as library)
+if(AG_FIXEDPOINT_CONFIG_DIR)
+    target_include_directories(test_${TEST_MODULE_NAME} PRIVATE ${AG_FIXEDPOINT_CONFIG_DIR})
+else()
+    target_include_directories(test_${TEST_MODULE_NAME} PRIVATE ${CMAKE_BINARY_DIR})
+endif()
+
 # Code coverage for tests
 if(ENABLE_COVERAGE)
     target_compile_options(test_${TEST_MODULE_NAME} PRIVATE --coverage)

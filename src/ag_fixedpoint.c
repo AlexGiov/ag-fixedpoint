@@ -242,4 +242,184 @@ ag_fixedpoint_q3_28_t ag_fixedpoint_q3_28_from_float(ag_fixedpoint_float_t value
 	return (ag_fixedpoint_q3_28_t)(value * 268435456.0 + (value >= 0.0 ? 0.5 : -0.5));
 }
 
+/*============================================================================*/
+/* FLOATING-POINT CONVERSIONS - UQ16.0                                       */
+/*============================================================================*/
+
+/**
+ * @brief Convert UQ16.0 fixed-point to floating-point
+ *
+ * @param[in] value UQ16.0 fixed-point value
+ * @return Floating-point representation
+ *
+ * @warning SLOW on MCUs without FPU
+ *
+ * @note This is a simple cast but provided for API consistency
+ */
+ag_fixedpoint_float_t ag_fixedpoint_uq16_0_to_float(ag_fixedpoint_uq16_0_t value) {
+	return (ag_fixedpoint_float_t)value;
+}
+
+/**
+ * @brief Convert floating-point to UQ16.0 fixed-point
+ *
+ * @param[in] value Floating-point value
+ * @return UQ16.0 fixed-point representation
+ *
+ * @warning SLOW on MCUs without FPU
+ * @note Fractional part will be truncated (rounded toward zero)
+ */
+ag_fixedpoint_uq16_0_t ag_fixedpoint_uq16_0_from_float(ag_fixedpoint_float_t value) {
+	return (ag_fixedpoint_uq16_0_t)(value + (value >= 0.0 ? 0.5 : 0.0));
+}
+
+/*============================================================================*/
+/* FLOATING-POINT CONVERSIONS - Q15.0                                        */
+/*============================================================================*/
+
+/**
+ * @brief Convert Q15.0 fixed-point to floating-point
+ *
+ * @param[in] value Q15.0 fixed-point value
+ * @return Floating-point representation
+ *
+ * @warning SLOW on MCUs without FPU
+ *
+ * @note This is a simple cast but provided for API consistency
+ */
+ag_fixedpoint_float_t ag_fixedpoint_q15_0_to_float(ag_fixedpoint_q15_0_t value) { return (ag_fixedpoint_float_t)value; }
+
+/**
+ * @brief Convert floating-point to Q15.0 fixed-point
+ *
+ * @param[in] value Floating-point value
+ * @return Q15.0 fixed-point representation
+ *
+ * @warning SLOW on MCUs without FPU
+ * @note Fractional part will be truncated with rounding toward nearest integer
+ */
+ag_fixedpoint_q15_0_t ag_fixedpoint_q15_0_from_float(ag_fixedpoint_float_t value) {
+	return (ag_fixedpoint_q15_0_t)(value + (value >= 0.0 ? 0.5 : -0.5));
+}
+
+/*============================================================================*/
+/* FLOATING-POINT CONVERSIONS - UQ8.0                                        */
+/*============================================================================*/
+
+/**
+ * @brief Convert UQ8.0 fixed-point to floating-point
+ *
+ * @param[in] value UQ8.0 fixed-point value
+ * @return Floating-point representation
+ *
+ * @warning SLOW on MCUs without FPU
+ *
+ * @note This is a simple cast but provided for API consistency
+ */
+ag_fixedpoint_float_t ag_fixedpoint_uq8_0_to_float(ag_fixedpoint_uq8_0_t value) { return (ag_fixedpoint_float_t)value; }
+
+/**
+ * @brief Convert floating-point to UQ8.0 fixed-point
+ *
+ * @param[in] value Floating-point value
+ * @return UQ8.0 fixed-point representation
+ *
+ * @warning SLOW on MCUs without FPU
+ * @note Fractional part will be truncated with rounding toward nearest integer
+ */
+ag_fixedpoint_uq8_0_t ag_fixedpoint_uq8_0_from_float(ag_fixedpoint_float_t value) {
+	return (ag_fixedpoint_uq8_0_t)(value + (value >= 0.0 ? 0.5 : 0.0));
+}
+
+/*============================================================================*/
+/* FLOATING-POINT CONVERSIONS - Q7.0                                         */
+/*============================================================================*/
+
+/**
+ * @brief Convert Q7.0 fixed-point to floating-point
+ *
+ * @param[in] value Q7.0 fixed-point value
+ * @return Floating-point representation
+ *
+ * @warning SLOW on MCUs without FPU
+ *
+ * @note This is a simple cast but provided for API consistency
+ */
+ag_fixedpoint_float_t ag_fixedpoint_q7_0_to_float(ag_fixedpoint_q7_0_t value) { return (ag_fixedpoint_float_t)value; }
+
+/**
+ * @brief Convert floating-point to Q7.0 fixed-point
+ *
+ * @param[in] value Floating-point value
+ * @return Q7.0 fixed-point representation
+ *
+ * @warning SLOW on MCUs without FPU
+ * @note Fractional part will be truncated with rounding toward nearest integer
+ */
+ag_fixedpoint_q7_0_t ag_fixedpoint_q7_0_from_float(ag_fixedpoint_float_t value) {
+	return (ag_fixedpoint_q7_0_t)(value + (value >= 0.0 ? 0.5 : -0.5));
+}
+
+/*============================================================================*/
+/* FLOATING-POINT CONVERSIONS - UQ32.0                                       */
+/*============================================================================*/
+
+/**
+ * @brief Convert UQ32.0 fixed-point to floating-point
+ *
+ * @param[in] value UQ32.0 fixed-point value
+ * @return Floating-point representation
+ *
+ * @warning SLOW on MCUs without FPU
+ *
+ * @note This is a simple cast but provided for API consistency
+ * @warning Large values may lose precision if using 32-bit float
+ */
+ag_fixedpoint_float_t ag_fixedpoint_uq32_0_to_float(ag_fixedpoint_uq32_0_t value) {
+	return (ag_fixedpoint_float_t)value;
+}
+
+/**
+ * @brief Convert floating-point to UQ32.0 fixed-point
+ *
+ * @param[in] value Floating-point value
+ * @return UQ32.0 fixed-point representation
+ *
+ * @warning SLOW on MCUs without FPU
+ * @note Fractional part will be truncated with rounding toward nearest integer
+ */
+ag_fixedpoint_uq32_0_t ag_fixedpoint_uq32_0_from_float(ag_fixedpoint_float_t value) {
+	return (ag_fixedpoint_uq32_0_t)(value + (value >= 0.0 ? 0.5 : 0.0));
+}
+
+/*============================================================================*/
+/* FLOATING-POINT CONVERSIONS - Q31.0                                        */
+/*============================================================================*/
+
+/**
+ * @brief Convert Q31.0 fixed-point to floating-point
+ *
+ * @param[in] value Q31.0 fixed-point value
+ * @return Floating-point representation
+ *
+ * @warning SLOW on MCUs without FPU
+ *
+ * @note This is a simple cast but provided for API consistency
+ * @warning Large values may lose precision if using 32-bit float
+ */
+ag_fixedpoint_float_t ag_fixedpoint_q31_0_to_float(ag_fixedpoint_q31_0_t value) { return (ag_fixedpoint_float_t)value; }
+
+/**
+ * @brief Convert floating-point to Q31.0 fixed-point
+ *
+ * @param[in] value Floating-point value
+ * @return Q31.0 fixed-point representation
+ *
+ * @warning SLOW on MCUs without FPU
+ * @note Fractional part will be truncated with rounding toward nearest integer
+ */
+ag_fixedpoint_q31_0_t ag_fixedpoint_q31_0_from_float(ag_fixedpoint_float_t value) {
+	return (ag_fixedpoint_q31_0_t)(value + (value >= 0.0 ? 0.5 : -0.5));
+}
+
 #endif /* AG_FIXEDPOINT_ENABLE_FLOAT */

@@ -59,7 +59,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "ag_fixedpoint/ag_fixedpoint_cfg.h"
+#include "ag_fixedpoint_cfg.h"
 
 #if AG_FIXEDPOINT_ENABLE_FLOAT
 #include <float.h>
@@ -292,6 +292,118 @@ typedef int16_t ag_fixedpoint_q3_12_t;
  */
 typedef int32_t ag_fixedpoint_q3_28_t;
 
+/**
+ * @typedef ag_fixedpoint_uq16_0_t
+ * @brief Unsigned fixed-point type with 16 integer bits and 0 fractional bits
+ *
+ * - Format: UQ16.0
+ * - Storage: 16-bit unsigned integer
+ * - Range: [0, 65535]
+ * - Resolution: 1
+ *
+ * @par Typical Applications:
+ * - Standard unsigned integers in Q notation
+ * - Mixed arithmetic with other Q formats
+ * - Counter values, absolute positions
+ *
+ * @note This is identical to uint16_t but uses Q notation for consistency
+ */
+typedef uint16_t ag_fixedpoint_uq16_0_t;
+
+/**
+ * @typedef ag_fixedpoint_q15_0_t
+ * @brief Signed fixed-point type with 15 integer bits and 0 fractional bits
+ *
+ * - Format: Q15.0
+ * - Storage: 16-bit signed integer (two's complement)
+ * - Range: [-32768, 32767]
+ * - Resolution: 1
+ *
+ * @par Typical Applications:
+ * - Standard signed integers in Q notation
+ * - Mixed arithmetic with other Q formats
+ * - Relative positions, offsets
+ *
+ * @note This is identical to int16_t but uses Q notation for consistency
+ */
+typedef int16_t ag_fixedpoint_q15_0_t;
+
+/**
+ * @typedef ag_fixedpoint_uq8_0_t
+ * @brief Unsigned fixed-point type with 8 integer bits and 0 fractional bits
+ *
+ * - Format: UQ8.0
+ * - Storage: 8-bit unsigned integer
+ * - Range: [0, 255]
+ * - Resolution: 1
+ *
+ * @par Typical Applications:
+ * - Byte values in Q notation
+ * - Small counters, flags
+ * - 8-bit sensor data
+ * - Color channel values
+ *
+ * @note This is identical to uint8_t but uses Q notation for consistency
+ */
+typedef uint8_t ag_fixedpoint_uq8_0_t;
+
+/**
+ * @typedef ag_fixedpoint_q7_0_t
+ * @brief Signed fixed-point type with 7 integer bits and 0 fractional bits
+ *
+ * - Format: Q7.0
+ * - Storage: 8-bit signed integer (two's complement)
+ * - Range: [-128, 127]
+ * - Resolution: 1
+ *
+ * @par Typical Applications:
+ * - Byte-sized signed values in Q notation
+ * - Small offsets, deltas
+ * - Temperature sensors (°C)
+ * - 8-bit signed sensor data
+ *
+ * @note This is identical to int8_t but uses Q notation for consistency
+ */
+typedef int8_t ag_fixedpoint_q7_0_t;
+
+/**
+ * @typedef ag_fixedpoint_uq32_0_t
+ * @brief Unsigned fixed-point type with 32 integer bits and 0 fractional bits
+ *
+ * - Format: UQ32.0
+ * - Storage: 32-bit unsigned integer
+ * - Range: [0, 4294967295]
+ * - Resolution: 1
+ *
+ * @par Typical Applications:
+ * - Standard unsigned 32-bit integers in Q notation
+ * - Large counters, timestamps
+ * - File sizes, memory addresses
+ * - High-precision accumulators
+ *
+ * @note This is identical to uint32_t but uses Q notation for consistency
+ */
+typedef uint32_t ag_fixedpoint_uq32_0_t;
+
+/**
+ * @typedef ag_fixedpoint_q31_0_t
+ * @brief Signed fixed-point type with 31 integer bits and 0 fractional bits
+ *
+ * - Format: Q31.0
+ * - Storage: 32-bit signed integer (two's complement)
+ * - Range: [-2147483648, 2147483647]
+ * - Resolution: 1
+ *
+ * @par Typical Applications:
+ * - Standard signed 32-bit integers in Q notation
+ * - Large range measurements
+ * - Position encoders (high resolution)
+ * - Timestamp differences
+ *
+ * @note This is identical to int32_t but uses Q notation for consistency
+ */
+typedef int32_t ag_fixedpoint_q31_0_t;
+
 /** @} */ /* end of AG_FIXEDPOINT_TYPES */
 
 /*============================================================================*/
@@ -403,6 +515,115 @@ typedef int32_t ag_fixedpoint_q3_28_t;
 	((ag_fixedpoint_q3_28_t)(((int_part) < 0)                                                                        \
 								 ? (((int_part) << 28) - (((int64_t)(frac_numerator) * 268435456LL + 5000) / 10000)) \
 								 : (((int_part) << 28) + (((int64_t)(frac_numerator) * 268435456LL + 5000) / 10000))))
+
+/**
+ * @def AG_FIXEDPOINT_UQ16_0_CONST
+ * @brief Create a UQ16.0 constant at compile time
+ *
+ * @param[in] int_part Integer value (0-65535)
+ * @param[in] frac_numerator Fractional numerator (ignored, must be 0)
+ *
+ * @return UQ16.0 fixed-point constant
+ *
+ * @note Since UQ16.0 has no fractional bits, frac_numerator should always be 0
+ *
+ * @par Example:
+ * @code
+ * ag_fixedpoint_uq16_0_t count = AG_FIXEDPOINT_UQ16_0_CONST(1000, 0); // 1000
+ * @endcode
+ */
+#define AG_FIXEDPOINT_UQ16_0_CONST(int_part, frac_numerator) ((ag_fixedpoint_uq16_0_t)(int_part))
+
+/**
+ * @def AG_FIXEDPOINT_Q15_0_CONST
+ * @brief Create a Q15.0 constant at compile time
+ *
+ * @param[in] int_part Integer value (-32768 to 32767)
+ * @param[in] frac_numerator Fractional numerator (ignored, must be 0)
+ *
+ * @return Q15.0 fixed-point constant
+ *
+ * @note Since Q15.0 has no fractional bits, frac_numerator should always be 0
+ *
+ * @par Example:
+ * @code
+ * ag_fixedpoint_q15_0_t offset = AG_FIXEDPOINT_Q15_0_CONST(-100, 0); // -100
+ * @endcode
+ */
+#define AG_FIXEDPOINT_Q15_0_CONST(int_part, frac_numerator) ((ag_fixedpoint_q15_0_t)(int_part))
+
+/**
+ * @def AG_FIXEDPOINT_UQ8_0_CONST
+ * @brief Create a UQ8.0 constant at compile time
+ *
+ * @param[in] int_part Integer value (0-255)
+ * @param[in] frac_numerator Fractional numerator (ignored, must be 0)
+ *
+ * @return UQ8.0 fixed-point constant
+ *
+ * @note Since UQ8.0 has no fractional bits, frac_numerator should always be 0
+ *
+ * @par Example:
+ * @code
+ * ag_fixedpoint_uq8_0_t brightness = AG_FIXEDPOINT_UQ8_0_CONST(128, 0); // 128
+ * @endcode
+ */
+#define AG_FIXEDPOINT_UQ8_0_CONST(int_part, frac_numerator) ((ag_fixedpoint_uq8_0_t)(int_part))
+
+/**
+ * @def AG_FIXEDPOINT_Q7_0_CONST
+ * @brief Create a Q7.0 constant at compile time
+ *
+ * @param[in] int_part Integer value (-128 to 127)
+ * @param[in] frac_numerator Fractional numerator (ignored, must be 0)
+ *
+ * @return Q7.0 fixed-point constant
+ *
+ * @note Since Q7.0 has no fractional bits, frac_numerator should always be 0
+ *
+ * @par Example:
+ * @code
+ * ag_fixedpoint_q7_0_t temperature = AG_FIXEDPOINT_Q7_0_CONST(25, 0); // 25°C
+ * @endcode
+ */
+#define AG_FIXEDPOINT_Q7_0_CONST(int_part, frac_numerator) ((ag_fixedpoint_q7_0_t)(int_part))
+
+/**
+ * @def AG_FIXEDPOINT_UQ32_0_CONST
+ * @brief Create a UQ32.0 constant at compile time
+ *
+ * @param[in] int_part Integer value (0-4294967295)
+ * @param[in] frac_numerator Fractional numerator (ignored, must be 0)
+ *
+ * @return UQ32.0 fixed-point constant
+ *
+ * @note Since UQ32.0 has no fractional bits, frac_numerator should always be 0
+ *
+ * @par Example:
+ * @code
+ * ag_fixedpoint_uq32_0_t counter = AG_FIXEDPOINT_UQ32_0_CONST(1000000, 0); // 1000000
+ * @endcode
+ */
+#define AG_FIXEDPOINT_UQ32_0_CONST(int_part, frac_numerator) ((ag_fixedpoint_uq32_0_t)(int_part))
+
+/**
+ * @def AG_FIXEDPOINT_Q31_0_CONST
+ * @brief Create a Q31.0 constant at compile time
+ *
+ * @param[in] int_part Integer value (-2147483648 to 2147483647)
+ * @param[in] frac_numerator Fractional numerator (ignored, must be 0)
+ *
+ * @return Q31.0 fixed-point constant
+ *
+ * @note Since Q31.0 has no fractional bits, frac_numerator should always be 0
+ *
+ * @par Example:
+ * @code
+ * ag_fixedpoint_q31_0_t position = AG_FIXEDPOINT_Q31_0_CONST(1000000, 0); // 1000000
+ * @endcode
+ */
+#define AG_FIXEDPOINT_Q31_0_CONST(int_part, frac_numerator) ((ag_fixedpoint_q31_0_t)(int_part))
+
 /** @} */ /* end of AG_FIXEDPOINT_CONST_MACROS */
 
 /*============================================================================*/
@@ -637,6 +858,208 @@ static inline int32_t ag_fixedpoint_q3_28_to_int(ag_fixedpoint_q3_28_t value) { 
 /** @} */ /* end of AG_FIXEDPOINT_Q3_28 */
 
 /*============================================================================*/
+/* INTEGER CONVERSION FUNCTIONS - UQ16.0                                     */
+/*============================================================================*/
+
+/**
+ * @defgroup AG_FIXEDPOINT_UQ16_0 UQ16.0 Conversion Functions
+ * @brief Conversion functions for UQ16.0 format (standard unsigned integer)
+ * @{
+ */
+
+/**
+ * @brief Convert integer to UQ16.0 fixed-point
+ *
+ * @param[in] value Integer value to convert (0-65535)
+ * @return UQ16.0 fixed-point representation (identical to input)
+ * @warning Values outside [0, 65535] will overflow
+ *
+ * @note This is an identity operation (no shift) but provided for API consistency
+ */
+static inline ag_fixedpoint_uq16_0_t ag_fixedpoint_uq16_0_from_int(int32_t value) {
+	return (ag_fixedpoint_uq16_0_t)value;
+}
+
+/**
+ * @brief Convert UQ16.0 fixed-point to integer
+ *
+ * @param[in] value UQ16.0 fixed-point value
+ * @return Integer value (identical to input)
+ *
+ * @note This is an identity operation (no shift) but provided for API consistency
+ */
+static inline int32_t ag_fixedpoint_uq16_0_to_int(ag_fixedpoint_uq16_0_t value) { return (int32_t)value; }
+
+/** @} */ /* end of AG_FIXEDPOINT_UQ16_0 */
+
+/*============================================================================*/
+/* INTEGER CONVERSION FUNCTIONS - Q15.0                                      */
+/*============================================================================*/
+
+/**
+ * @defgroup AG_FIXEDPOINT_Q15_0 Q15.0 Conversion Functions
+ * @brief Conversion functions for Q15.0 format (standard signed integer)
+ * @{
+ */
+
+/**
+ * @brief Convert integer to Q15.0 fixed-point
+ *
+ * @param[in] value Integer value to convert (-32768 to 32767)
+ * @return Q15.0 fixed-point representation (identical to input)
+ * @warning Values outside [-32768, 32767] will overflow
+ *
+ * @note This is an identity operation (no shift) but provided for API consistency
+ */
+static inline ag_fixedpoint_q15_0_t ag_fixedpoint_q15_0_from_int(int32_t value) { return (ag_fixedpoint_q15_0_t)value; }
+
+/**
+ * @brief Convert Q15.0 fixed-point to integer
+ *
+ * @param[in] value Q15.0 fixed-point value
+ * @return Integer value (identical to input)
+ *
+ * @note This is an identity operation (no shift) but provided for API consistency
+ */
+static inline int32_t ag_fixedpoint_q15_0_to_int(ag_fixedpoint_q15_0_t value) { return (int32_t)value; }
+
+/** @} */ /* end of AG_FIXEDPOINT_Q15_0 */
+
+/*============================================================================*/
+/* INTEGER CONVERSION FUNCTIONS - UQ8.0                                      */
+/*============================================================================*/
+
+/**
+ * @defgroup AG_FIXEDPOINT_UQ8_0 UQ8.0 Conversion Functions
+ * @brief Conversion functions for UQ8.0 format (standard unsigned byte)
+ * @{
+ */
+
+/**
+ * @brief Convert integer to UQ8.0 fixed-point
+ *
+ * @param[in] value Integer value to convert (0-255)
+ * @return UQ8.0 fixed-point representation (identical to input)
+ * @warning Values outside [0, 255] will overflow
+ *
+ * @note This is an identity operation (no shift) but provided for API consistency
+ */
+static inline ag_fixedpoint_uq8_0_t ag_fixedpoint_uq8_0_from_int(int32_t value) { return (ag_fixedpoint_uq8_0_t)value; }
+
+/**
+ * @brief Convert UQ8.0 fixed-point to integer
+ *
+ * @param[in] value UQ8.0 fixed-point value
+ * @return Integer value (identical to input)
+ *
+ * @note This is an identity operation (no shift) but provided for API consistency
+ */
+static inline int32_t ag_fixedpoint_uq8_0_to_int(ag_fixedpoint_uq8_0_t value) { return (int32_t)value; }
+
+/** @} */ /* end of AG_FIXEDPOINT_UQ8_0 */
+
+/*============================================================================*/
+/* INTEGER CONVERSION FUNCTIONS - Q7.0                                       */
+/*============================================================================*/
+
+/**
+ * @defgroup AG_FIXEDPOINT_Q7_0 Q7.0 Conversion Functions
+ * @brief Conversion functions for Q7.0 format (standard signed byte)
+ * @{
+ */
+
+/**
+ * @brief Convert integer to Q7.0 fixed-point
+ *
+ * @param[in] value Integer value to convert (-128 to 127)
+ * @return Q7.0 fixed-point representation (identical to input)
+ * @warning Values outside [-128, 127] will overflow
+ *
+ * @note This is an identity operation (no shift) but provided for API consistency
+ */
+static inline ag_fixedpoint_q7_0_t ag_fixedpoint_q7_0_from_int(int32_t value) { return (ag_fixedpoint_q7_0_t)value; }
+
+/**
+ * @brief Convert Q7.0 fixed-point to integer
+ *
+ * @param[in] value Q7.0 fixed-point value
+ * @return Integer value (identical to input)
+ *
+ * @note This is an identity operation (no shift) but provided for API consistency
+ */
+static inline int32_t ag_fixedpoint_q7_0_to_int(ag_fixedpoint_q7_0_t value) { return (int32_t)value; }
+
+/** @} */ /* end of AG_FIXEDPOINT_Q7_0 */
+
+/*============================================================================*/
+/* INTEGER CONVERSION FUNCTIONS - UQ32.0                                     */
+/*============================================================================*/
+
+/**
+ * @defgroup AG_FIXEDPOINT_UQ32_0 UQ32.0 Conversion Functions
+ * @brief Conversion functions for UQ32.0 format (standard unsigned 32-bit integer)
+ * @{
+ */
+
+/**
+ * @brief Convert integer to UQ32.0 fixed-point
+ *
+ * @param[in] value Integer value to convert (0-4294967295)
+ * @return UQ32.0 fixed-point representation (identical to input)
+ *
+ * @note This is an identity operation (no shift) but provided for API consistency
+ * @note For values larger than int32_t range, use direct assignment or cast
+ */
+static inline ag_fixedpoint_uq32_0_t ag_fixedpoint_uq32_0_from_int(int32_t value) {
+	return (ag_fixedpoint_uq32_0_t)value;
+}
+
+/**
+ * @brief Convert UQ32.0 fixed-point to integer
+ *
+ * @param[in] value UQ32.0 fixed-point value
+ * @return Integer value (identical to input)
+ *
+ * @note This is an identity operation (no shift) but provided for API consistency
+ * @warning For values > INT32_MAX, will overflow when cast to int32_t
+ */
+static inline int32_t ag_fixedpoint_uq32_0_to_int(ag_fixedpoint_uq32_0_t value) { return (int32_t)value; }
+
+/** @} */ /* end of AG_FIXEDPOINT_UQ32_0 */
+
+/*============================================================================*/
+/* INTEGER CONVERSION FUNCTIONS - Q31.0                                      */
+/*============================================================================*/
+
+/**
+ * @defgroup AG_FIXEDPOINT_Q31_0 Q31.0 Conversion Functions
+ * @brief Conversion functions for Q31.0 format (standard signed 32-bit integer)
+ * @{
+ */
+
+/**
+ * @brief Convert integer to Q31.0 fixed-point
+ *
+ * @param[in] value Integer value to convert (-2147483648 to 2147483647)
+ * @return Q31.0 fixed-point representation (identical to input)
+ *
+ * @note This is an identity operation (no shift) but provided for API consistency
+ */
+static inline ag_fixedpoint_q31_0_t ag_fixedpoint_q31_0_from_int(int32_t value) { return (ag_fixedpoint_q31_0_t)value; }
+
+/**
+ * @brief Convert Q31.0 fixed-point to integer
+ *
+ * @param[in] value Q31.0 fixed-point value
+ * @return Integer value (identical to input)
+ *
+ * @note This is an identity operation (no shift) but provided for API consistency
+ */
+static inline int32_t ag_fixedpoint_q31_0_to_int(ag_fixedpoint_q31_0_t value) { return (int32_t)value; }
+
+/** @} */ /* end of AG_FIXEDPOINT_Q31_0 */
+
+/*============================================================================*/
 /* FLOATING-POINT CONVERSION FUNCTIONS (OPTIONAL)                            */
 /*============================================================================*/
 
@@ -698,6 +1121,30 @@ ag_fixedpoint_q3_12_t ag_fixedpoint_q3_12_from_float(ag_fixedpoint_float_t value
 /* Q3.28 <-> float */
 ag_fixedpoint_float_t ag_fixedpoint_q3_28_to_float(ag_fixedpoint_q3_28_t value);
 ag_fixedpoint_q3_28_t ag_fixedpoint_q3_28_from_float(ag_fixedpoint_float_t value);
+
+/* UQ16.0 <-> float */
+ag_fixedpoint_float_t ag_fixedpoint_uq16_0_to_float(ag_fixedpoint_uq16_0_t value);
+ag_fixedpoint_uq16_0_t ag_fixedpoint_uq16_0_from_float(ag_fixedpoint_float_t value);
+
+/* Q15.0 <-> float */
+ag_fixedpoint_float_t ag_fixedpoint_q15_0_to_float(ag_fixedpoint_q15_0_t value);
+ag_fixedpoint_q15_0_t ag_fixedpoint_q15_0_from_float(ag_fixedpoint_float_t value);
+
+/* UQ8.0 <-> float */
+ag_fixedpoint_float_t ag_fixedpoint_uq8_0_to_float(ag_fixedpoint_uq8_0_t value);
+ag_fixedpoint_uq8_0_t ag_fixedpoint_uq8_0_from_float(ag_fixedpoint_float_t value);
+
+/* Q7.0 <-> float */
+ag_fixedpoint_float_t ag_fixedpoint_q7_0_to_float(ag_fixedpoint_q7_0_t value);
+ag_fixedpoint_q7_0_t ag_fixedpoint_q7_0_from_float(ag_fixedpoint_float_t value);
+
+/* UQ32.0 <-> float */
+ag_fixedpoint_float_t ag_fixedpoint_uq32_0_to_float(ag_fixedpoint_uq32_0_t value);
+ag_fixedpoint_uq32_0_t ag_fixedpoint_uq32_0_from_float(ag_fixedpoint_float_t value);
+
+/* Q31.0 <-> float */
+ag_fixedpoint_float_t ag_fixedpoint_q31_0_to_float(ag_fixedpoint_q31_0_t value);
+ag_fixedpoint_q31_0_t ag_fixedpoint_q31_0_from_float(ag_fixedpoint_float_t value);
 
 /** @} */ /* end of AG_FIXEDPOINT_FLOAT_CONV */
 
