@@ -31,7 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CMake build system with MinGW support
 - Code coverage reports
 - Professional documentation (Doxygen-ready)
-- Configuration template system
+- **Configuration template system** (`config/` for template, `cfg/` for actual config)
+- **CMake standalone detection** (auto-enable tests when not submodule)
+- **Release automation scripts** for Windows (PowerShell) and Linux (Bash)
+- **GitHub publish automation** (automated tag creation and release publishing)
+- Implementation notes documentation (IMPLEMENTATION-NOTES.md)
+- MIT License
+- Professional CHANGELOG (Keep a Changelog format)
 
 ### Features
 - Zero runtime overhead for constant conversions
@@ -40,14 +46,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configurable floating-point precision (32/64-bit)
 - Header-only integer conversions
 - C11 standard compliance
+- **Smart config file search** (cfg/ → config/ fallback)
+- **Automated release workflow** with GitHub CLI integration
 
 ### Documentation
 - Complete README with quick start guide
 - API reference documentation
 - Build and installation instructions
 - Example usage code
-- Configuration guide
+- Configuration guide (template pattern)
 - Code coverage metrics
+- Implementation notes and architecture docs
+- Release automation guide
 
 ---
 
@@ -79,9 +89,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Links
 
-- [Repository](https://github.com/YOUR_USERNAME/ag-fixedpoint)
-- [Issue Tracker](https://github.com/YOUR_USERNAME/ag-fixedpoint/issues)
-- [Documentation](https://github.com/YOUR_USERNAME/ag-fixedpoint#readme)
+- [Repository](https://github.com/AlexGiov/ag-fixedpoint)
+- [Issue Tracker](https://github.com/AlexGiov/ag-fixedpoint/issues)
+- [Documentation](https://github.com/AlexGiov/ag-fixedpoint#readme)
+- [Releases](https://github.com/AlexGiov/ag-fixedpoint/releases)
 
 ---
 

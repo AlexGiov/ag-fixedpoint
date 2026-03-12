@@ -53,33 +53,58 @@ The library implements 7 fixed-point formats following Q notation standard:
 
 ## 🚀 Installation
 
-### Option 1: CMake Integration (Recommended)
+### Option 1: Download Release Archive (Recommended)
+
+Download the latest release from [GitHub Releases](https://github.com/AlexGiov/ag-fixedpoint/releases):
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/ag-fixedpoint.git
-cd ag-fixedpoint
+# Extract archive
+unzip ag_fixedpoint-1.0.0.zip
+cd ag_fixedpoint-1.0.0
+
+# Configure library (copy template and customize)
+cp config/ag_fixedpoint_cfg.h.template cfg/ag_fixedpoint_cfg.h
+# Edit cfg/ag_fixedpoint_cfg.h to match your needs
 
 # Build and install
-mkdir build && cd build
-cmake ..
-cmake --build .
-cmake --install .
+cmake -B build -S .
+cmake --build build
+cmake --install build
 ```
 
-### Option 2: Manual Integration (Embedded Systems)
+### Option 2: CMake FetchContent (Submodule)
+
+```cmake
+include(FetchContent)
+FetchContent_Declare(
+    ag_fixedpoint
+    GIT_REPOSITORY https://github.com/AlexGiov/ag-fixedpoint.git
+    GIT_TAG v1.0.0
+)
+FetchContent_MakeAvailable(ag_fixedpoint)
+
+target_link_libraries(your_target PRIVATE ag_fixedpoint)
+```
+
+**Note:** Tests are automatically disabled when used as a submodule.
+
+### Option 3: Manual Integration (Embedded Systems)
 
 Copy these files to your project:
 
 ```
 include/ag_fixedpoint/ag_fixedpoint.h
-include/ag_fixedpoint/ag_fixedpoint_cfg.h
+config/ag_fixedpoint_cfg.h.template → cfg/ag_fixedpoint_cfg.h
 src/ag_fixedpoint.c  (only if AG_FIXEDPOINT_ENABLE_FLOAT=1)
 ```
 
-Add to your include path: `-I/path/to/ag-fixedpoint/include`
+Add to your include paths:
+```bash
+-I/path/to/ag-fixedpoint/include
+-I/path/to/ag-fixedpoint/cfg
+```
 
-### Option 3: Header-Only Mode
+### Option 4: Header-Only Mode
 
 If you disable float support (`AG_FIXEDPOINT_ENABLE_FLOAT=0`), only headers are needed:
 
@@ -167,7 +192,24 @@ int32_t temperature_c = ag_fixedpoint_uq12_4_to_int(temp_raw);
 
 ## ⚙️ Configuration
 
-Edit `include/ag_fixedpoint/ag_fixedpoint_cfg.h`:
+The library uses a **configuration template** pattern for maximum flexibility:
+
+- **`config/ag_fixedpoint_cfg.h.template`** - Template for distribution (read-only)
+- **`cfg/ag_fixedpoint_cfg.h`** - Your actual configuration (you create this)
+
+### First-Time Setup
+
+```bash
+# Copy template to create your configuration
+cp config/ag_fixedpoint_cfg.h.template cfg/ag_fixedpoint_cfg.h
+
+# Edit your configuration
+nano cfg/ag_fixedpoint_cfg.h  # or your preferred editor
+```
+
+### Configuration Options
+
+Edit `cfg/ag_fixedpoint_cfg.h`:
 
 ```c
 // Enable floating-point conversions (0=disabled, 1=enabled)
@@ -184,6 +226,36 @@ Edit `include/ag_fixedpoint/ag_fixedpoint_cfg.h`:
 // Rounding mode (0=truncate, future: 1=round, 2=floor, 3=ceil)
 #define AG_FIXEDPOINT_ROUNDING_MODE 0
 ```
+
+### Recommended Settings
+
+**For embedded systems without FPU:**
+```c
+#define AG_FIXEDPOINT_ENABLE_FLOAT 0
+```
+
+**For desktop or FPU-enabled systems:**
+```c
+#define AG_FIXEDPOINT_ENABLE_FLOAT 1
+#define AG_FIXEDPOINT_FLOAT_TYPE 32
+```
+
+**For high-precision applications:**
+```c
+#define AG_FIXEDPOINT_ENABLE_FLOAT 1
+#define AG_FIXEDPOINT_FLOAT_TYPE 64
+```
+
+### CMake Auto-Detection
+
+When building standalone (not as submodule):
+- CMake automatically searches for `cfg/ag_fixedpoint_cfg.h`
+- Falls back to `config/ag_fixedpoint_cfg.h.template` if not found
+- Tests are enabled by default
+
+When used as submodule:
+- Tests are automatically disabled
+- Your parent project provides the config path
 
 ### IEEE-754 Type Detection
 
@@ -369,13 +441,52 @@ doxygen Doxyfile
 # Open html/index.html in browser
 ```
 
-### Code Examples
+### Architecture Documentation
 
-See `examples/` directory for:
-- Temperature sensor integration
-- ADC conversion
-- DSP filter coefficients
-- Control system applications
+See [IMPLEMENTATION-NOTES.md](IMPLEMENTATION-NOTES.md) for:
+- Configuration system design
+- CMake integration details
+- Standalone vs submodule detection
+- Release workflow
+
+## 📦 Creating Releases
+
+### Automated Release Process
+
+The library includes automated release scripts:
+
+**Windows (PowerShell):**
+```powershell
+# Create archive and publish to GitHub
+.\tools\create-release-archive.ps1 -Version "1.0.0" -PublishToGitHub
+
+# Or just create local archive
+.\tools\create-release-archive.ps1 -Version "1.0.0"
+```
+
+**Linux/macOS (Bash):**
+```bash
+# Create local archive
+./tools/create-release-archive.sh 1.0.0
+```
+
+The scripts automatically:
+- ✅ Export only library essentials (exclude tests, build artifacts)
+- ✅ Create versioned ZIP/tar.gz archive
+- ✅ Create and push Git tags (with `-PublishToGitHub`)
+- ✅ Publish release to GitHub with CHANGELOG notes
+- ✅ Upload archive as release asset
+
+### Manual Release Process
+
+```bash
+# Create and push tag
+git tag -a v1.0.0 -m "Release 1.0.0"
+git push origin v1.0.0
+
+# Create GitHub release manually
+gh release create v1.0.0 --title "v1.0.0" --notes-file CHANGELOG.md
+```
 
 ## 🤝 Contributing
 
@@ -420,9 +531,10 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 Support
 
-- **Issues:** [GitHub Issues](https://github.com/yourusername/ag-fixedpoint/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/yourusername/ag-fixedpoint/discussions)
-- **Email:** your.email@example.com
+- **Issues:** [GitHub Issues](https://github.com/AlexGiov/ag-fixedpoint/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/AlexGiov/ag-fixedpoint/discussions)
+- **Documentation:** [IMPLEMENTATION-NOTES.md](IMPLEMENTATION-NOTES.md)
+- **Changelog:** [CHANGELOG.md](CHANGELOG.md)
 
 ## 🗺️ Roadmap
 

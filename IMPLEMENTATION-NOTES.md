@@ -6,7 +6,7 @@
 
 **Creato:**
 - `config/ag_fixedpoint_cfg.h.template` - Template di configurazione per utenti finali
-- `cfg/ag_fixedpoint_cfg.h` - Configurazione di sviluppo (esclusa da Git)
+- `cfg/ag_fixedpoint_cfg.h` - Configurazione di sviluppo/test (committata in Git)
 
 **Modificato:**
 - `include/ag_fixedpoint/ag_fixedpoint.h` - Cambiato include da path completo a semplice
@@ -15,7 +15,7 @@
 **Benefici:**
 - ✅ Configurazione separata dal codice libreria
 - ✅ Utenti personalizzano cfg senza modificare la libreria
-- ✅ Sviluppatori hanno la loro config locale
+- ✅ cfg/ committato permette test immediati dopo clone
 - ✅ Conforme allo standard del report
 
 ---
@@ -56,13 +56,20 @@ add_subdirectory(external/ag_fixedpoint)
 - Crea archivio ZIP/TAR.GZ con solo file necessari
 - Include: include/, src/, config/, cmake/, CMakeLists.txt, README.md, LICENSE, CHANGELOG.md
 - Esclude: test/, examples/, external/, cfg/, build/
+- **Pubblicazione automatica GitHub** (PowerShell script con `-PublishToGitHub`)
+  - Crea e pusha tag Git
+  - Crea release GitHub con note da CHANGELOG.md
+  - Carica archivio come asset
 
 **Utilizzo:**
 ```powershell
-# Windows
+# Windows - Solo archivio locale
 .\tools\create-release-archive.ps1 -Version "1.0.0"
 
-# Linux
+# Windows - Archivio + pubblicazione GitHub
+.\tools\create-release-archive.ps1 -Version "1.0.0" -PublishToGitHub
+
+# Linux - Solo archivio locale
 ./tools/create-release-archive.sh 1.0.0
 ```
 
@@ -73,19 +80,19 @@ add_subdirectory(external/ag_fixedpoint)
 **Creati:**
 - `CHANGELOG.md` - Storia versioni (formato Keep a Changelog)
 - `LICENSE` - MIT License
-- `.gitignore` - Aggiornato per escludere `cfg/`
+- `.gitignore` - Aggiornato (cfg/ ora è committato)
 
 **Struttura File:**
 ```
 config/               # Template distribuito
   ag_fixedpoint_cfg.h.template
 
-cfg/                  # Config locale (in .gitignore)
+cfg/                  # Config test/sviluppo (committato)
   ag_fixedpoint_cfg.h
 
 tools/                # Script automazione
-  create-release-archive.ps1
-  create-release-archive.sh
+  create-release-archive.ps1  # Windows (supporta GitHub publish)
+  create-release-archive.sh   # Linux/macOS
 ```
 
 ---
@@ -104,7 +111,7 @@ ag-fixedpoint/                              # Repository Git
 ├── config/                                 # ✅ Template configurazione
 │   └── ag_fixedpoint_cfg.h.template
 │
-├── cfg/                                    # ⚠️ Config dev (in .gitignore)
+├── cfg/                                    # ✅ Config test (committato)
 │   └── ag_fixedpoint_cfg.h
 │
 ├── test/                                   # ✅ Test unitari
