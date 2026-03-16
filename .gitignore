@@ -9,6 +9,9 @@ lib/
 *.dll
 *.dylib
 
+#.svn
+*.svn
+
 # CMake
 CMakeCache.txt
 CMakeFiles/
