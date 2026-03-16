@@ -11,14 +11,14 @@ cmake_minimum_required(VERSION 3.10)
 # ==============================================================================
 # To rename this library, change the project name below and rename:
 #   - include/mylib/ → include/<new_name>/
-#   - src/mylib.c → src/<new_name>.c (if using single-module convention)
+#   - src/ag_fixedpoint.c → src/<new_name>.c (if using single-module convention)
 #   - test/unit/test_mylib.c → test/unit/test_<new_name>.c
 #
 # All CMake targets, exports, and install paths will automatically use the
 # new project name via ${PROJECT_NAME} variable.
 
-project(ag_fixedpoint 
-    VERSION 1.0.0
+project(ag_fixedpoint
+    VERSION 2.0.1
     DESCRIPTION "Example library with unit testing template"
     LANGUAGES C
 )
@@ -26,22 +26,22 @@ project(ag_fixedpoint
 # Derived variables (auto-configured from project name)
 string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
 
+# Verify Ninja generator is being used
+if(NOT CMAKE_GENERATOR MATCHES "Ninja")
+    message(WARNING 
+        "This project requires Ninja build system.\n"
+        "  Current generator: ${CMAKE_GENERATOR}\n"
+        "  Use the build.cmake script: cmake -P build.cmake\n"
+    )
+endif()
+
 # C Standard
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
-# Detect if building standalone or as submodule
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    set(AG_FIXEDPOINT_STANDALONE ON)
-    message(STATUS "ag_fixedpoint: Standalone build")
-else()
-    set(AG_FIXEDPOINT_STANDALONE OFF)
-    message(STATUS "ag_fixedpoint: Building as submodule/subdirectory")
-endif()
-
-# Build options (auto-adjust based on standalone vs submodule)
-option(BUILD_TESTING "Build unit tests" ${AG_FIXEDPOINT_STANDALONE})
+# Build options
+option(BUILD_TESTING "Build unit tests" ON)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(INSTALL_SOURCES "Install source files for embedded integration" ON)
 option(ENABLE_COVERAGE "Enable code coverage analysis" OFF)
@@ -77,13 +77,11 @@ set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
 # Source files
 # Note: For single-module libraries, name your main file src/${PROJECT_NAME}.c
 # For multi-module libraries, list all source files explicitly
-# Example shown below uses math_utils.c - rename to match your library
 set(${PROJECT_NAME_UPPER}_SOURCES
     src/ag_fixedpoint.c
 )
 
 # Header files (for IDE support)
-# Example shown below uses math_utils.h - rename to match your library
 set(${PROJECT_NAME_UPPER}_HEADERS
     include/${PROJECT_NAME}/ag_fixedpoint.h
 )
@@ -95,54 +93,13 @@ add_library(${PROJECT_NAME} ${${PROJECT_NAME_UPPER}_SOURCES} ${${PROJECT_NAME_UP
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/cfg>  # Configuration visible to headers
         $<INSTALL_INTERFACE:include>
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src/private
 )
 
-# ==============================================================================
-# Configuration File Management
-# ==============================================================================
-# The library requires ag_fixedpoint_cfg.h for compile-time configuration.
-# Search order:
-#   1. Application's cfg/ directory (when used as submodule)
-#   2. CMake configuration directory specified by user
-#   3. Build directory (generated from template)
-#
-# For applications using this library:
-#   1. Copy config/ag_fixedpoint_cfg.h.template to your project's cfg/
-#   2. Rename to ag_fixedpoint_cfg.h
-#   3. Customize settings
-#   4. Add cfg/ to your include path
-
-find_path(AG_FIXEDPOINT_CONFIG_DIR
-    NAMES ag_fixedpoint_cfg.h
-    PATHS
-        ${CMAKE_SOURCE_DIR}/cfg                    # Application config dir
-        ${CMAKE_CURRENT_SOURCE_DIR}/../cfg         # One level up
-        ${AG_FIXEDPOINT_CONFIG_PATH}               # User-specified path
-    NO_DEFAULT_PATH
-)
-
-if(AG_FIXEDPOINT_CONFIG_DIR)
-    message(STATUS "ag_fixedpoint: Using configuration from ${AG_FIXEDPOINT_CONFIG_DIR}")
-    target_include_directories(${PROJECT_NAME} PRIVATE ${AG_FIXEDPOINT_CONFIG_DIR})
-else()
-    # No custom config found - use template with defaults for testing
-    message(STATUS "ag_fixedpoint: No custom config found, using template defaults")
-    message(STATUS "  For production use, copy config/ag_fixedpoint_cfg.h.template")
-    message(STATUS "  to your project's cfg/ directory and customize it")
-    
-    # Copy template to build directory
-    configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/config/ag_fixedpoint_cfg.h.template
-        ${CMAKE_CURRENT_BINARY_DIR}/ag_fixedpoint_cfg.h
-        COPYONLY
-    )
-    target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-endif()
-
-# ==============================================================================
+# Compiler flags for library
 target_compile_options(${PROJECT_NAME} PRIVATE ${WARNING_FLAGS})
 
 # Code coverage support
@@ -189,6 +146,12 @@ if(INSTALL_SOURCES)
     )
     message(STATUS "Source installation enabled (for embedded integration)")
 endif()
+
+# Install configuration template
+install(DIRECTORY config/
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/config/${PROJECT_NAME}
+    FILES_MATCHING PATTERN "*.template"
+)
 
 # Install CMake config files
 install(EXPORT ${PROJECT_NAME}Targets

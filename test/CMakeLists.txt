@@ -34,12 +34,11 @@ target_compile_options(cmocka PRIVATE
 # Test executables
 # ==============================================================================
 # NOTE: Test executable naming convention: test_<module_name>
-# The example below uses test_math_utils - rename to match your module
 # After renaming library, update this section or use rename-library.ps1 script
 
 # Auto-detect test files and create executables
-# For now, using explicit declaration (example: math_utils module)
-set(TEST_MODULE_NAME "ag_fixedpoint")  # TODO: Update when renaming library
+# For now, using explicit declaration
+set(TEST_MODULE_NAME "ag_fixedpoint")
 
 add_executable(test_${TEST_MODULE_NAME}
     unit/test_${TEST_MODULE_NAME}.c
@@ -57,13 +56,6 @@ target_include_directories(test_${TEST_MODULE_NAME}
         ${CMAKE_SOURCE_DIR}/test/fixtures
         ${CMAKE_SOURCE_DIR}/test/mocks
 )
-
-# Add configuration directory (same as library)
-if(AG_FIXEDPOINT_CONFIG_DIR)
-    target_include_directories(test_${TEST_MODULE_NAME} PRIVATE ${AG_FIXEDPOINT_CONFIG_DIR})
-else()
-    target_include_directories(test_${TEST_MODULE_NAME} PRIVATE ${CMAKE_BINARY_DIR})
-endif()
 
 # Code coverage for tests
 if(ENABLE_COVERAGE)
