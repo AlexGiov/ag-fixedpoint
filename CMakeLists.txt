@@ -18,7 +18,7 @@ cmake_minimum_required(VERSION 3.10)
 # new project name via ${PROJECT_NAME} variable.
 
 project(ag_fixedpoint
-    VERSION 1.0.2
+    VERSION 1.0.3
     DESCRIPTION "Fixed-point library for C using standard Q-format naming convention"
     LANGUAGES C
 )
