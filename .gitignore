@@ -9,9 +9,6 @@ lib/
 *.dll
 *.dylib
 
-#.svn
-*.svn
-
 # CMake
 CMakeCache.txt
 CMakeFiles/
@@ -24,6 +21,9 @@ Makefile
 !coverage.cmake
 !release.cmake
 !rename-library.cmake
+
+# CMake user-specific presets (machine-local overrides, not versioned)
+CMakeUserPresets.json
 
 # Coverage
 *.gcno

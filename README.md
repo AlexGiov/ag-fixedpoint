@@ -19,8 +19,10 @@ Professional template for unit testing C libraries with CMocka framework, design
 
 ### Prerequisites
 
-- CMake 3.16+
+- CMake 3.24+ (required for conditional presets in `CMakePresets.json`)
 - GCC or compatible C compiler
+  - **Windows**: [MSYS2](https://www.msys2.org/) UCRT64 environment (recommended - MSYS2's own MINGW64 environment is deprecated as of 2026). Install MSYS2, then `pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-gdb` and make sure `C:\msys64\ucrt64\bin` is on your `PATH`.
+  - **Linux/macOS**: system GCC (e.g. `sudo apt install gcc`)
 - gcov (for coverage analysis)
 - **Ninja build system** - **REQUIRED** for optimal performance and cross-platform consistency
 - Git (for version management)
@@ -53,10 +55,25 @@ brew install ninja
 
 ### Build and Test
 
-**Cross-Platform (Works on Windows, Linux, macOS):**
+**Using CMakePresets.json (recommended, IDE-friendly):**
 
 ```bash
-# Build project
+# Windows (MSYS2 UCRT64)
+cmake --preset ucrt64
+cmake --build --preset ucrt64
+
+# Linux
+cmake --preset linux-gcc
+cmake --build --preset linux-gcc
+```
+
+The preset to use depends on the platform, not on personal choice: `ucrt64` is only valid on Windows and `linux-gcc` only on Linux (enforced via the `condition` field in `CMakePresets.json`), so the commands above are not interchangeable between OSes.
+To override the compiler location, create a local (untracked) `CMakeUserPresets.json` that inherits from one of these presets.
+
+**Cross-Platform wrapper (works identically on Windows, Linux, macOS):**
+
+```bash
+# Build project (auto-selects the right preset for your OS)
 cmake -P build.cmake
 
 # Build with tests
@@ -77,15 +94,15 @@ cmake -P coverage.cmake
 
 **Platform-Specific Configuration:**
 
-The scripts automatically detect your environment:
+Generator and compiler are defined declaratively in `CMakePresets.json`:
 
-- **Build System**: Ninja (required) - automatically detected
-- **Compiler Auto-Detection**: GCC is found automatically in system PATH or common installation locations
-- **Cross-Platform**: Same commands work identically on Windows, Linux, and macOS
+- **Build System**: Ninja (required), set by the preset
+- **Compiler**: `ucrt64` preset -> MSYS2 UCRT64 GCC; `linux-gcc` preset -> system GCC
+- **Cross-Platform**: `build.cmake` auto-selects the right preset for your OS
 
 **Custom Configuration (Advanced):**
 
-Override auto-detection with environment variables:
+To point to a different compiler location, create a local `CMakeUserPresets.json` (not tracked by Git) that inherits from `ucrt64`/`linux-gcc`, or override via environment variable (still supported as an escape hatch by `build.cmake`):
 ```powershell
 # Windows
 $env:CMAKE_C_COMPILER = "C:\custom\path\gcc.exe"
@@ -104,30 +121,34 @@ export GCOV_EXECUTABLE=/usr/bin/gcov
 
 ## 📁 Directory Structure
 
-The template is organized into two main parts: the **core library** (deliverable) and the **development infrastructure** (testing & tooling).
+The template is organized into two main parts: the **`ag_fixedpoint/` library** (self-contained, deliverable) and the **development infrastructure** (testing & tooling) around it.
 
-### Core Library Structure (Installable)
+### Core Library: `ag_fixedpoint/` (Installable, exportable)
 
-This is what gets installed and integrated into your application:
+Everything the library needs lives under a single root, `ag_fixedpoint/`, on purpose: this is the folder that gets exported to other repositories once the library
+is stable (see [Exporting `ag_fixedpoint/` with git subtree](#-exporting-ag_fixedpoint-with-git-subtree) below). It has its own `CMakeLists.txt` and configures/builds standalone.
 
 ```
 unit_test_template/
-├── include/ag_fixedpoint/          # Public API headers
-│   └── ag_fixedpoint.h             # Public interface
-├── src/                    # Library implementation
-│   ├── ag_fixedpoint.c             # Implementation files
-│   └── private/            # Private implementation (not installed)
-└── config/                 # Configuration templates
-    └── ag_fixedpoint_config.h.template  # Configuration example
+└── ag_fixedpoint/
+    ├── CMakeLists.txt          # Self-contained: project(), target, install rules
+    ├── include/                # Public API headers
+    │   └── ag_fixedpoint.h             # Public interface
+    ├── src/                    # Library implementation
+    │   ├── ag_fixedpoint.c             # Implementation files
+    │   └── private/            # Private implementation (not installed)
+    └── config/                 # Configuration templates
+        └── ag_fixedpoint_config.h.template  # Configuration example
 ```
 
 **Why this structure?**
-- `include/ag_fixedpoint/` - Uses namespace subfolder to avoid header name collisions
-- `src/` - Contains implementation; installable for embedded integration
-- `src/private/` - Internal implementation details (excluded from install)
-- `config/` - Template for application-specific configuration
+- `ag_fixedpoint/` - Single root folder so the library can be split into its own branch/repo as-is
+- `ag_fixedpoint/include/` - Public headers directly under `ag_fixedpoint/`, no extra namespace subfolder
+- `ag_fixedpoint/src/` - Contains implementation; installable for embedded integration
+- `ag_fixedpoint/src/private/` - Internal implementation details (excluded from install)
+- `ag_fixedpoint/config/` - Template for application-specific configuration
 
-### Development Infrastructure (Non-installable)
+### Development Infrastructure (Non-installable, stays outside `ag_fixedpoint/`)
 
 Tools and tests for library development:
 
@@ -146,26 +167,44 @@ unit_test_template/
 │       ├── include/
 │       └── src/
 ├── cmake/                  # Build system configuration
-│   ├── toolchain-mingw.cmake
 │   └── README.md
 ├── build/                  # Build artifacts (gitignored)
 ├── bin/                    # Test executables (gitignored)
 ├── lib/                    # Compiled libraries (gitignored)
 ├── coverage/               # Coverage reports (gitignored)
 ├── .vscode/                # VS Code integration
+├── CMakePresets.json       # Toolchain presets (ucrt64 / linux-gcc)
 ├── build.cmake             # Cross-platform build automation
 ├── coverage.cmake          # Cross-platform coverage report generator
 ├── release.cmake           # Cross-platform version management
 ├── rename-library.cmake    # Library renaming utility (cross-platform)
-└── CMakeLists.txt          # Build configuration
+└── CMakeLists.txt          # Thin orchestrator (add_subdirectory(ag_fixedpoint), tests)
 ```
 
 **Development vs Production:**
-- Test infrastructure stays in the library repository
-- `cfg/` contains the actual config used for testing (NOT installed)
-- `config/` contains templates for applications to copy and customize
-- Only `include/`, `src/`, and `config/` templates are installed
+
+- Test infrastructure stays in this repository, outside `ag_fixedpoint/`
+- `cfg/` contains the actual config used for testing (NOT installed, NOT part of `ag_fixedpoint/`)
+- `ag_fixedpoint/config/` contains templates for applications to copy and customize
+- Only `ag_fixedpoint/include/`, `ag_fixedpoint/src/`, and `ag_fixedpoint/config/` templates are installed
 - Application gets clean library without test dependencies
+
+## 🌿 Lib-export branch
+
+This template has a branch used to share the library with consumer application. This branch was create with the following commands. Please see [GIT_WORKFLOW.md](GIT_WORKFLOW.md) doc to further information how to use the library in the application and how to syncronize work with the library repository.
+
+```bash
+# In this repository: create a branch containing only ag_fixedpoint/ (rewritten history)
+git subtree split --prefix=ag_fixedpoint -b lib-export
+git push origin lib-export
+
+```
+
+Because `ag_fixedpoint/CMakeLists.txt` is self-sufficient, the consuming app can either `add_subdirectory(external/ag_fixedpoint)` or configure/build it standalone. Point `MYLIB_CONFIG_DIR` at the app's own `cfg/` **before** `add_subdirectory(ag_fixedpoint)` to supply the real `ag_fixedpoint_config.h` (see `ag_fixedpoint/CMakeLists.txt` comments).
+
+This mirrors what `git submodule add <repo-url> external/ag_fixedpoint` would look like once the library moves to its own repository - subtree is the lower-friction stepping stone: consumers don't need to learn submodule workflows, and history is squashed into a single commit per pull.
+
+If `lib-export` ever receives hotfixes directly (bypassing `main`), see [GIT_WORKFLOW.md](GIT_WORKFLOW.md) for the bidirectional sync workflow.
 
 ## 🛠️ Renaming the Template Library
 
@@ -185,14 +224,14 @@ cmake -DNEW_NAME=sensor_driver -P rename-library.cmake
 cmake -DCLEAN=ON -DRUN_TESTS=ON -P build.cmake
 
 # 4. Implement your library code
-#    - Edit src/sensor_driver.c
-#    - Edit include/sensor_driver/sensor_driver.h
+#    - Edit ag_fixedpoint/src/sensor_driver.c
+#    - Edit ag_fixedpoint/include/sensor_driver.h
 #    - Write tests in test/unit/test_sensor_driver.c
 ```
 
 **What the script does (simplified):**
-1. ✅ Changes `project(ag_fixedpoint)` → `project(sensor_driver)` in CMakeLists.txt
-2. ✅ Renames `include/ag_fixedpoint/` → `include/sensor_driver/`
+1. ✅ Changes `project(ag_fixedpoint)` → `project(sensor_driver)` in `CMakeLists.txt` and `ag_fixedpoint/CMakeLists.txt`
+2. ✅ Renames `ag_fixedpoint/include/ag_fixedpoint.h` → `ag_fixedpoint/include/sensor_driver.h`
 3. ✅ Renames source files: `ag_fixedpoint.*` → `sensor_driver.*`
 4. ✅ Updates `#include` statements in C files
 5. ✅ Updates README.md references
@@ -214,10 +253,10 @@ cmake -DCLEAN=ON -DRUN_TESTS=ON -P build.cmake
 
 If you prefer to do it manually:
 
-### 1. Update CMakeLists.txt
+### 1. Update CMakeLists.txt (both files)
 
 ```cmake
-# Change only this line:
+# Change this line in CMakeLists.txt AND ag_fixedpoint/CMakeLists.txt:
 project(ag_fixedpoint VERSION 1.0.0 LANGUAGES C)  
 # to:
 project(your_library_name VERSION 1.0.0 LANGUAGES C)
@@ -228,23 +267,22 @@ project(your_library_name VERSION 1.0.0 LANGUAGES C)
 ### 2. Rename Directories and Files
 
 ```powershell
-# Rename include directory
-mv include/ag_fixedpoint include/your_library_name
+# Rename the header (directly under ag_fixedpoint/include/, no namespace subfolder)
+mv ag_fixedpoint/include/ag_fixedpoint.h ag_fixedpoint/include/your_library_name.h
 
 # Rename source files (if single-module library)
-mv src/ag_fixedpoint.c src/your_library_name.c
-mv include/your_library_name/ag_fixedpoint.h include/your_library_name/your_library_name.h
+mv ag_fixedpoint/src/ag_fixedpoint.c ag_fixedpoint/src/your_library_name.c
 mv test/unit/test_ag_fixedpoint.c test/unit/test_your_library_name.c
 ```
 
 ### 3. Update #include Statements
 
 ```c
-// In src/your_library_name.c
-#include "your_library_name/your_library_name.h"
+// In ag_fixedpoint/src/your_library_name.c
+#include "your_library_name.h"
 
 // In test/unit/test_your_library_name.c
-#include "your_library_name/your_library_name.h"
+#include "your_library_name.h"
 ```
 
 ### 4. Update README.md
@@ -266,19 +304,19 @@ This template follows **CMake best practices** for relocatable packages:
 ### File Naming Convention
 
 For **single-module libraries** (most common):
-- Use: `src/${PROJECT_NAME}.c` and `include/${PROJECT_NAME}/${PROJECT_NAME}.h`
-- Example: `sensor_driver` → `src/sensor_driver.c`
+- Use: `ag_fixedpoint/src/${PROJECT_NAME}.c` and `ag_fixedpoint/include/${PROJECT_NAME}.h`
+- Example: `sensor_driver` → `ag_fixedpoint/src/sensor_driver.c`, `ag_fixedpoint/include/sensor_driver.h`
 
 For **multi-module libraries**:
 - Use descriptive module names
-- Example: `uart_driver` → `src/uart_tx.c`, `src/uart_rx.c`, `src/uart_config.c`
+- Example: `uart_driver` → `ag_fixedpoint/src/uart_tx.c`, `ag_fixedpoint/src/uart_rx.c`, `ag_fixedpoint/src/uart_config.c`
 
 ### How It Works Under the Hood
 
 The template leverages CMake variables for maximum flexibility:
 
 ```cmake
-# In CMakeLists.txt - Single source of truth:
+# In ag_fixedpoint/CMakeLists.txt - Single source of truth:
 project(ag_fixedpoint VERSION 1.0.0 LANGUAGES C)
 
 # Auto-derived variable:
@@ -290,7 +328,7 @@ target_include_directories(${PROJECT_NAME} ...)
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets ...)
 
 # Install paths use variables:
-install(DIRECTORY include/${PROJECT_NAME}/ ...)
+install(TARGETS ${PROJECT_NAME} PUBLIC_HEADER DESTINATION include/${PROJECT_NAME} ...)
 install(FILES ... DESTINATION cmake/${PROJECT_NAME})
 ```
 
@@ -311,19 +349,19 @@ git clone <repo-url> my-library-tests
 cd my-library-tests
 
 # Update library name
-# Edit CMakeLists.txt: project(ag_fixedpoint) -> project(your_lib_name)
+# Edit CMakeLists.txt AND ag_fixedpoint/CMakeLists.txt: project(ag_fixedpoint) -> project(your_lib_name)
 ```
 
 ### 2. Add Your Library Sources
 
 ```bash
 # Add headers
-include/your_lib_name/your_module.h
+ag_fixedpoint/include/your_module.h
 
 # Add implementation
-src/your_module.c
+ag_fixedpoint/src/your_module.c
 
-# Update CMakeLists.txt MYLIB_SOURCES variable
+# Update ag_fixedpoint/CMakeLists.txt MYLIB_SOURCES variable
 ```
 
 ### 3. Write Tests
@@ -420,7 +458,7 @@ cmake --install build
 
 # Installed structure:
 install/
-├── include/ag_fixedpoint/          # Public headers
+├── include/                # Public headers (flat, not namespaced)
 │   └── ag_fixedpoint.h
 ├── src/ag_fixedpoint/              # Source files (if INSTALL_SOURCES=ON)
 │   └── ag_fixedpoint.c
@@ -485,6 +523,10 @@ target_include_directories(ag_fixedpoint PUBLIC
 )
 ```
 
+Both options resolve `#include "ag_fixedpoint.h"` the same way: the installed `PUBLIC_HEADER` is
+placed flat in `include/` (not namespaced under `include/ag_fixedpoint/`), matching the layout used
+when the library is embedded/subtree'd directly.
+
 ### Versioning and Releases
 
 #### Automated Release (Recommended)
@@ -547,10 +589,12 @@ git clone --branch v1.0.0 <repo-url> vendor/ag_fixedpoint
 
 ### Library Structure Best Practices
 
-This template follows professional C library organization:
+This template follows professional C library organization, validated against the
+[Pitchfork Layout (PFL)](https://github.com/vector-of-bool/pitchfork) conventions for C/C++
+projects (see `README_LIBRARY_STRUCTURE.md` for the full rationale and sources):
 
-- **Namespace headers** - `include/ag_fixedpoint/` prevents naming conflicts
-- **Separate public/private** - Only `include/` is public API
+- **Flat public headers** - `ag_fixedpoint/include/` holds headers directly, no extra namespace subfolder in the source tree; the installed header is also kept flat (`include/ag_fixedpoint.h`), so `#include "ag_fixedpoint.h"` is identical whether the library is embedded/subtree'd or installed via `find_package`
+- **Separate public/private** - Only `ag_fixedpoint/include/` is public API
 - **Template config** - Library provides template, app provides actual config
 - **Optional configuration** - Library works with or without config file
 - **Source installation** - Enables embedded system integration
@@ -564,13 +608,13 @@ The template includes a simple `ag_fixedpoint` library as an example:
 ### Library Code
 
 ```c
-// include/ag_fixedpoint/ag_fixedpoint.h
+// ag_fixedpoint/include/ag_fixedpoint.h
 int add(int a, int b);
 int subtract(int a, int b);
 int multiply(int a, int b);
 int divide(int a, int b);
 
-// src/ag_fixedpoint.c
+// ag_fixedpoint/src/ag_fixedpoint.c
 int add(int a, int b) { return a + b; }
 int divide(int a, int b) {
     if (b == 0) return 0;  // Safety check
@@ -634,13 +678,16 @@ The template includes a **minimal CMocka stub** for demonstration. For productio
 
 ### Test Organization
 
+Only `test/unit/` is scaffolded by this template; the others below are optional and
+created on demand as a project grows:
+
 ```
 test/
 ├── unit/           # Unit tests (functions, modules)
-├── integration/    # Integration tests (multiple modules)
-├── mocks/          # Mock implementations for dependencies
-├── fixtures/       # Test setup/teardown helpers
-└── data/           # Test data files
+├── integration/    # Integration tests (multiple modules) - create if needed
+├── mocks/          # Mock implementations for dependencies - create if needed
+├── fixtures/       # Test setup/teardown helpers - create if needed
+└── data/           # Test data files - create if needed
 ```
 
 ### Test Naming
@@ -707,7 +754,7 @@ jobs:
 
 - [CMake Configuration](cmake/README.md) - Build system details
 - [CMocka Integration](external/cmocka/README.md) - Test framework setup
-- [VS Code Setup](.vscode/README.md) - Editor integration
+- [Git Workflow](GIT_WORKFLOW.md) - Sharing the library via git subtree
 
 ## 🤝 Contributing
 
@@ -728,8 +775,8 @@ This template is provided as-is for use in your projects. Customize as needed.
 
 - [ ] Rename project in CMakeLists.txt
 - [ ] Update library name in all files
-- [ ] Add library source files to `src/`
-- [ ] Add public headers to `include/<libname>/`
+- [ ] Add library source files to `ag_fixedpoint/src/`
+- [ ] Add public headers to `ag_fixedpoint/include/`
 - [ ] Write unit tests in `test/unit/`
 - [ ] Build and run tests: `cmake -DRUN_TESTS=ON -P build.cmake`
 - [ ] Check coverage: `cmake -DCOVERAGE=ON -DRUN_TESTS=ON -P build.cmake && cmake -DGENERATE_HTML=ON -P coverage.cmake`
@@ -743,9 +790,3 @@ This template is provided as-is for use in your projects. Customize as needed.
 - [CMake Tutorial](https://cmake.org/cmake/help/latest/guide/tutorial/index.html)
 - [GCC Coverage (gcov)](https://gcc.gnu.org/onlinedocs/gcc/Gcov.html)
 - [Unit Testing Best Practices](https://github.com/testdouble/contributing-tests/wiki/Test-Driven-Development)
-
----
-
-**Version**: 1.0.2  
-**Last Updated**: 2026-03-16  
-**Status**: ✅ Production Ready

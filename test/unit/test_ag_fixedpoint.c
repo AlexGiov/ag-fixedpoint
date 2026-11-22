@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "ag_fixedpoint/ag_fixedpoint.h"
+#include "ag_fixedpoint.h"
 
 /* Tolerance for floating-point comparisons */
 #define FLOAT_TOLERANCE 0.001

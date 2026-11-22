@@ -17,7 +17,7 @@
  * @version 1.0.0
  */
 
-#include "ag_fixedpoint/ag_fixedpoint.h"
+#include "ag_fixedpoint.h"
 
 /*============================================================================*/
 /* FLOATING-POINT CONVERSION IMPLEMENTATIONS                                 */
